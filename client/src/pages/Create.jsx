@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const Create = () => {
-
-    // const navigate = useNavigate();
 
     const [ title, setTitle ] = useState("")
     const [ price, setPrice ] = useState("")
@@ -58,50 +56,75 @@ const Create = () => {
         // ! not https. WE ARE NOT SET UP TO RECEIVE SECURE REQUESTS YET.
     }
 
+    const deleteProduct = (product_id) => {
+        axios.delete(`http://localhost:8000/api/products/delete/${product_id}`)
+            .then( res => {
+                console.log(res.data)
+                setFlip(!flip)
+            })
+            .catch(errors => console.log(errors))
+      }
+
     return (
         <fieldset>
             <legend>Create.jsx</legend>
-            <h1> PRODUCT MANAGER </h1>
-            <form onSubmit={createProduct}>
-                <p>
-                    Title:
-                    <input type="text" value = {title} onChange = {(e) => setTitle(e.target.value)}/>
-                </p>
-                <p>
-                    Price:
-                    <input 
-                    type="number"
-                    step = "0.01"
-                    min = { 0 } 
-                    value = {price} 
-                    onChange = {(e) => setPrice(e.target.value)}/>
-                </p>
-                <p>
-                    Description:
-                    <textarea style = {{height: 100, width: 400}} type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
-                </p>
+            <div style = {{
+                display: 'flex',
+                flexDirection: 'column',
+            }}>
+                <h1> PRODUCT MANAGER </h1>
+                <h2> add a product </h2>
+                <form onSubmit={createProduct}>
+                    <p>
+                        Title:
+                        <input type="text" value = {title} onChange = {(e) => setTitle(e.target.value)}/>
+                    </p>
+                    <p>
+                        Price:
+                        <input 
+                        type="number"
+                        step = "0.01"
+                        min = { 0 } 
+                        value = {price} 
+                        onChange = {(e) => setPrice(e.target.value)}/>
+                    </p>
+                    <p>
+                        Description:
+                        <textarea style = {{height: 100, width: 400}} type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
+                    </p>
+                    {
+                        title.trim().length === 0 || price <= 0 || description.length === 0 ?
+                        <button disabled>SUBMIT</button> :
+                        <button>SUBMIT</button>
+                    }
+                </form>
                 {
-                    title.trim().length === 0 || price <= 0 || description.length === 0 ?
-                    <button disabled>SUBMIT</button> :
-                    <button>SUBMIT</button>
+                    errors.map((error) => <p> { error } </p>)
                 }
-            </form>
-            {
-                errors.map((error) => <p> { error } </p>)
-            }
-            <h2> ALL PRODUCTS </h2>
-            <ul style = {{listStyle: 'none'}}>
-                {
-                    productList.map( (product) => {
-                        const {_id, title} = product;
-                        return(
-                        <li style = {{marginBottom: 10}}> 
-                            <Link to = {`/products/${_id}`}> { title } </Link>
-                        </li>
-                        )
-                    })
-                }
-            </ul>
+                <h2> all products </h2>
+                <ul style = {{listStyle: 'none'}}>
+                    {
+                        productList.map( (product) => {
+                            const {_id, title} = product;
+                            return(
+                            <li style = {{marginBottom: 10}}> 
+                                <div style = {{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    width: 400
+                                }}>
+                                    <Link to = {`/products/${_id}`}>{title}</Link>
+                                    <div>
+                                        <Link style = {{marginLeft: 6}} to = {`/products/${_id}/edit`}>EDIT</Link>
+                                        <button style = {{marginLeft: 6}} onClick = {() => deleteProduct(_id)}>DELETE</button>
+                                    </div>
+                                </div>
+                            </li>
+                            )
+                        })
+                    }
+                </ul>
+            </div>
         </fieldset>
     )
 }
