@@ -1,23 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 
 const Create = () => {
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const [ title, setTitle ] = useState("")
     const [ price, setPrice ] = useState("")
-    const [ description, setDescription ] = useState(false)
+    const [ description, setDescription ] = useState("")
+
+    const [ productList, setProductList ] = useState([])
+    const [ flip, setFlip ] = useState(false)
     
     //Create an array to store errors from the API
     const [errors, setErrors] = useState([]);
 
+    useEffect(() => {
+        axios.get("http://localhost:8000/api/products")
+        .then( res => {
+            // console.log(res.data)
+            setProductList(res.data);
+        })
+        .catch( errors => console.log(errors.response.data.errors))
+    }, [flip])
+
     const createProduct = (e) => {
         e.preventDefault()
-        if (title.trim().length == 0){
+        if (title.trim().length === 0){
             setTitle("");
-            return;
+            // return;
         }
         let body = {
             "title" : title,
@@ -28,28 +40,28 @@ const Create = () => {
         axios.post("http://localhost:8000/api/products", body)
             .then ( res => {
                 console.log(res.data)
-                // setName("")
-                // setDate("")
-                // setUnder30Mins(false)
-                navigate("/dashboard")
+                setTitle("")
+                setPrice("")
+                setDescription("")
+                setFlip(!flip)
             })
-            // .catch(err=>{
-            //     const errorResponse = err.response.data.errors; // Get the errors from err.response.data
-            //     const errorArr = []; // Define a temp error array to push the messages in
-            //     for (const key of Object.keys(errorResponse)) { // Loop through all errors and get the messages
-            //         errorArr.push(errorResponse[key].message)
-            //     }
-            //     // Set Errors
-            //     setErrors(errorArr);
-            // })            
-            .catch ( errors => console.log(errors))
+            .catch ( err => {
+                const errorResponse = err.response.data.errors; // Get the errors from err.response.data
+                const errorArr = []; // Define a temp error array to push the messages in
+                for (const key of Object.keys(errorResponse)) { // Loop through all errors and get the messages
+                    errorArr.push(errorResponse[key].message)
+                }
+                // Set Errors
+                setErrors(errorArr);
+            })            
+            // .catch ( errors => console.log(errors))
         // ! not https. WE ARE NOT SET UP TO RECEIVE SECURE REQUESTS YET.
     }
-
 
     return (
         <fieldset>
             <legend>Create.jsx</legend>
+            <h1> PRODUCT MANAGER </h1>
             <form onSubmit={createProduct}>
                 <p>
                     Title:
@@ -66,14 +78,30 @@ const Create = () => {
                 </p>
                 <p>
                     Description:
-                    <textArea type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
+                    <textarea style = {{height: 100, width: 400}} type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
                 </p>
-                <button>Submit</button>
+                {
+                    title.trim().length === 0 || price <= 0 || description.length === 0 ?
+                    <button disabled>SUBMIT</button> :
+                    <button>SUBMIT</button>
+                }
             </form>
-            {/* <Link to={`/dashboard`}>Dashboard</Link> */}
             {
                 errors.map((error) => <p> { error } </p>)
             }
+            <h2> ALL PRODUCTS </h2>
+            <ul style = {{listStyle: 'none'}}>
+                {
+                    productList.map( (product) => {
+                        const {_id, title} = product;
+                        return(
+                        <li style = {{marginBottom: 10}}> 
+                            <Link to = {`/products/${_id}`}> { title } </Link>
+                        </li>
+                        )
+                    })
+                }
+            </ul>
         </fieldset>
     )
 }
