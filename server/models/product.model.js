@@ -4,7 +4,7 @@ const ProductSchema = new mongoose.Schema({
     title:{
         type:String,
         required:[true, "Title cannot be left blank."],
-        minLength:[2, "Title must be at least 2 characters."]
+        minLength:[3, "Title must be at least 3 characters."]
     },
     price:{
         type:Number,
@@ -13,7 +13,8 @@ const ProductSchema = new mongoose.Schema({
     description:{
         type:String,
         required:[true, "Please enter a description for this product."],
-        minLength:[20, "Description minimum 20 characters."]
+        minLength:[20, "Description minimum 20 characters."],
+        maxLength:[200, "Description is too long."]
     }
 }, {timestamps:true});
 

@@ -30,9 +30,9 @@ const Create = () => {
             // return;
         }
         let body = {
-            "title" : title,
+            "title" : title.trim(),
             "price" : price,
-            "description" : description
+            "description" : description.trim()
         }
         // ! MAKE AN AXIOS REQUEST TO MY API
         axios.post("http://localhost:8000/api/products", body)
@@ -77,7 +77,12 @@ const Create = () => {
                 <form onSubmit={createProduct}>
                     <p>
                         Title:
-                        <input type="text" value = {title} onChange = {(e) => setTitle(e.target.value)}/>
+                        <input 
+                            type="text" 
+                            // pattern="[^\s]+" 
+                            value = {title} 
+                            onChange = {(e) => setTitle(e.target.value)}
+                        />
                     </p>
                     <p>
                         Price:
@@ -88,12 +93,16 @@ const Create = () => {
                         value = {price} 
                         onChange = {(e) => setPrice(e.target.value)}/>
                     </p>
-                    <p>
+                    <p style = {{
+                        display: 'flex',
+                        alignItems: 'flex-start'
+                    }}>
                         Description:
-                        <textarea style = {{height: 100, width: 400}} type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
+                        <textarea style = {{height: 80, width: 400}} type="text" value = {description} onChange = {(e) => setDescription(e.target.value)}/>
                     </p>
                     {
-                        title.trim().length === 0 || price <= 0 || description.length === 0 ?
+                        // title.trim().length === 0 || price <= 0 || description.length === 0 ?
+                        title.trim().length < 3 || price <= 0 || description.trim().length <= 20 ?
                         <button disabled>SUBMIT</button> :
                         <button>SUBMIT</button>
                     }
