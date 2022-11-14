@@ -63,7 +63,7 @@ const Create = () => {
                 setFlip(!flip)
             })
             .catch(errors => console.log(errors))
-      }
+    }
 
     return (
         <fieldset>
